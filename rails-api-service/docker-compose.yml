@@ -19,6 +19,7 @@ services:
       MYSQL_HOST: db
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-rails_api_development}
+      MYSQL_DATABASE_TEST: ${MYSQL_DATABASE_TEST:-rails_api_test}
       MYSQL_USER: ${MYSQL_USER:-rails}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-password}
       IPSTACK_ACCESS_KEY: ${IPSTACK_ACCESS_KEY}

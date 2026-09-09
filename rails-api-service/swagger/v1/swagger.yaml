@@ -8,6 +8,8 @@ servers:
     description: Local server
 paths:
   /api/v1/locations:
+    parameters:
+      - $ref: '#/components/parameters/XApiKeyHeader'
     post:
       summary: Create a new location by IP or hostname
       operationId: createLocation

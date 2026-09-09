@@ -13,6 +13,14 @@ gem "mysql2", "~> 0.5"
 gem "faraday", "~> 2.7"
 gem "faraday-retry", "~> 2.0"
 
+# Pagination
+gem "kaminari"
+
+# JSON
+gem "json", "= 2.7.6"
+
+gem "net-imap", "= 0.6.6"
+
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible
 gem "rack-cors"
 
