@@ -1,6 +1,6 @@
 module Api
   module V1
-    class LocationsController < ApplicationController
+    class LocationsController < ActionController::API
       before_action :verify_api_key
       
       def create
