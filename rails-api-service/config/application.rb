@@ -20,6 +20,9 @@ module RailsApiService
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
 
+    # Zeitwerk configuration for app/api directory
+    config.autoload_paths << Rails.root.join('app', 'api')
+
     # Set the default serializer for JSON responses
     config.active_record.yaml_column_permitted_classes = [Symbol, Date, Time, ActiveSupport::TimeWithZone, ActiveSupport::TimeZone]
   end

@@ -20,7 +20,10 @@ gem "rack-cors"
 group :development, :test do
   gem "rspec-rails", "~> 6.0"
   gem "factory_bot_rails"
-  gem 'rswag'
+  gem 'rswag', '= 2.17.0'
+  gem 'rswag-ui', '= 2.17.0'
+  gem 'rswag-api', '= 2.17.0'
+  gem 'rswag-specs', '= 2.17.0'
 end
 
 # Use Puma as the app server
