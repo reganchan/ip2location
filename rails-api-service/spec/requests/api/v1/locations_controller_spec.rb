@@ -7,7 +7,7 @@ RSpec.describe "Api::V1::Locations", type: :request do
 
   describe "POST /api/v1/locations" do
     context 'with valid parameters' do
-it 'creates a location and returns success' do
+      it 'creates a location and returns success' do
         # Mock the IPStack API call
         stub_request(:get, "http://api.ipstack.com/8.8.8.8")
           .with(query: {
@@ -52,7 +52,7 @@ it 'creates a location and returns success' do
 
     context 'with invalid API key' do
       it 'returns unauthorized' do
-        post '/api/v1/locations', params: { location: { ip_address: '8.8.8.8' } }, headers: invalid_headers
+        post '/api/v1/locations', params: { location: { ip_address: '8.8.8.8' } }, headers: invalid_headers, as: :json
         expect(response).to have_http_status(:unauthorized)
         json = JSON.parse(response.body)
         expect(json['error']).to eq('Unauthorized')
@@ -65,7 +65,7 @@ it 'creates a location and returns success' do
           IpLookupService::IpstackError.new('API error')
         )
 
-        post '/api/v1/locations', params: { location: { ip_address: '8.8.8.8' } }, headers: valid_headers
+        post '/api/v1/locations', params: { location: { ip_address: '8.8.8.8' } }, headers: valid_headers, as: :json
         expect(response).to have_http_status(:internal_server_error)
         json = JSON.parse(response.body)
         expect(json['error']).to eq('API error')
@@ -78,7 +78,7 @@ it 'creates a location and returns success' do
           StandardError.new('Unexpected error')
         )
 
-        post '/api/v1/locations', params: { location: { ip_address: '8.8.8.8' } }, headers: valid_headers
+        post '/api/v1/locations', params: { location: { ip_address: '8.8.8.8' } }, headers: valid_headers, as: :json
         expect(response).to have_http_status(:bad_request)
         json = JSON.parse(response.body)
         expect(json['error']).to eq('Invalid input: Unexpected error')
@@ -140,7 +140,7 @@ it 'creates a location and returns success' do
           address_type: 'ipv4',
           country_code: 'US',
           country_name: 'United States',
-          region_name: 'State#{i}',
+          region_name: "State#{i}",
           city: "City#{i}",
           zip_code: "0000#{i}",
           latitude: i.to_f,
