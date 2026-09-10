@@ -20,17 +20,12 @@ This is a Ruby on Rails API service for IP/hostname geolocation lookup using IPS
    docker-compose run --rm web rails db:migrate
    ```
 
-4. Prepare the test database:
+4. Start the service:
    ```bash
-   docker compose run --rm db mysql -u root -proot -e 'create database rails_api_test'
-   docker compose run --rm db mysql -u root -proot -e "grant all on rails_api_test.* to 'rails'@'%'"
-   docker compose run --rm web rails db:migrate RAILS_ENV=test
+   docker-compose up -d
    ```
+   Server should be running locally on port 3000
 
-5. Run the test suite:
-   ```bash
-   docker-compose run --rm web rspec
-   ```
 
 ## API Endpoints
 
@@ -55,9 +50,17 @@ The test suite includes:
 - Request specs for all API endpoints
 
 To run the tests:
-```bash
-docker-compose run web rspec
-```
+1. Prepare the test database:
+   ```bash
+   docker compose run --rm db mysql -u root -proot -e 'create database rails_api_test'
+   docker compose run --rm db mysql -u root -proot -e "grant all on rails_api_test.* to 'rails'@'%'"
+   docker compose run --rm web rails db:migrate RAILS_ENV=test
+   ```
+
+2. Run the test suite:
+   ```bash
+   docker-compose run --rm web rspec
+   ```
 
 ## Project Structure
 
