@@ -38,6 +38,8 @@ All requests require an `X-API-Key` header with the value set in the `API_ACCESS
 The default access key (specified in docker compose file) is `12345678`.
 
 If using the swagger interface, click "Authorize" on the top right and enter it there to authenticate all APIs
+<img width="1576" height="811" alt="Screenshot 2026-09-09 at 10 55 30 PM" src="https://github.com/user-attachments/assets/873df80d-68bf-4ca1-8651-284b09f25778" />
+
 
 ## Running Tests
 
