@@ -4,12 +4,47 @@ info:
   version: '1.0'
   description: API for looking up IP/hostname geolocation data
 servers:
-  - url: http://localhost:3000
-    description: Local server
+  - url: http://{hostUrl}
+    description: API server hostname with protocol
+    variables:
+      hostUrl:
+        default: localhost:3000
 paths:
   /api/v1/locations:
-    parameters:
-      - $ref: '#/components/parameters/XApiKeyHeader'
+    get:
+      summary: List all locations with pagination
+      operationId: listLocations
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: A paginated list of locations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Location'
+        '401':
+          description: Unauthorized - missing or invalid API key
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+      security:
+        - api_key: []
     post:
       summary: Create a new location by IP or hostname
       operationId: createLocation
@@ -135,41 +170,6 @@ paths:
                     type: string
         '404':
           description: Location not found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-      security:
-        - api_key: []
-  /api/v1/locations:
-    get:
-      summary: List all locations with pagination
-      operationId: listLocations
-      parameters:
-        - in: query
-          name: page
-          schema:
-            type: integer
-            default: 1
-        - in: query
-          name: per_page
-          schema:
-            type: integer
-            default: 20
-      responses:
-        '200':
-          description: A paginated list of locations
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Location'
-        '401':
-          description: Unauthorized - missing or invalid API key
           content:
             application/json:
               schema:
