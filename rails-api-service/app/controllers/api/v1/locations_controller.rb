@@ -19,7 +19,7 @@ module Api
             status: 'success',
             location_id: location.id
           }, status: :created
-        rescue IpstackError => e
+        rescue IpLookupService::IpstackError => e
           render json: { error: e.message }, status: :internal_server_error
         rescue => e
           render json: { error: "Invalid input: #{e.message}" }, status: :bad_request
@@ -49,7 +49,7 @@ module Api
       private
 
       def location_params
-        params.require(:location).permit(:ip_address, :hostname)
+        (params[:location] || {}).permit(:ip_address, :hostname)
       end
 
       def verify_api_key

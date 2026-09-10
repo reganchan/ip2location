@@ -7,26 +7,31 @@ RSpec.describe "Api::V1::Locations", type: :request do
 
   describe "POST /api/v1/locations" do
     context 'with valid parameters' do
-      it 'creates a location and returns success' do
+it 'creates a location and returns success' do
         # Mock the IPStack API call
-        allow_any_instance_of(IpLookupService).to receive(:lookup).and_return(
-          Location.create!(
-            ip_address: '8.8.8.8',
-            hostname: 'google.com',
-            address_type: 'ipv4',
-            country_code: 'US',
-            country_name: 'United States',
-            region_name: 'California',
-            city: 'Mountain View',
-            zip_code: '94043',
-            latitude: 37.4056,
-            longitude: -122.0775,
-            raw_response: { 'test' => 'data' }
-          )
-        )
+        stub_request(:get, "http://api.ipstack.com/8.8.8.8")
+          .with(query: {
+            'access_key' => ENV['IPSTACK_ACCESS_KEY'],
+            'hostname' => '1',
+            'language' => 'en',
+            'output' => 'json'
+          })
+          .to_return(status: 200, body: {
+            'ip' => '8.8.8.8',
+            'hostname' => 'google.com',
+            'type' => 'ipv4',
+            'country_code' => 'US',
+            'country_name' => 'United States',
+            'region_name' => 'California',
+            'city' => 'Mountain View',
+            'zip' => '94043',
+            'latitude' => 37.4056,
+            'longitude' => -122.0775,
+            'success' => true
+          }.to_json, headers: {})
 
         expect {
-          post '/api/v1/locations', params: { location: { ip_address: '8.8.8.8' } }, headers: valid_headers
+          post '/api/v1/locations', params: { location: { ip_address: '8.8.8.8' } }, headers: valid_headers, as: :json
         }.to change(Location, :count).by(1)
 
         expect(response).to have_http_status(:created)
@@ -38,7 +43,7 @@ RSpec.describe "Api::V1::Locations", type: :request do
 
     context 'with missing ip_address and hostname' do
       it 'returns a bad request error' do
-        post '/api/v1/locations', params: { location: {} }, headers: valid_headers
+        post '/api/v1/locations', params: { location: {} }, headers: valid_headers, as: :json
         expect(response).to have_http_status(:bad_request)
         json = JSON.parse(response.body)
         expect(json['error']).to eq('Either ip_address or hostname required')
@@ -93,7 +98,7 @@ RSpec.describe "Api::V1::Locations", type: :request do
       zip_code: '94043',
       latitude: 37.4056,
       longitude: -122.0775,
-      raw_response: {}
+      raw_response: '{}'
     ) }
 
     context 'with valid ID' do
@@ -126,8 +131,6 @@ RSpec.describe "Api::V1::Locations", type: :request do
   end
 
   describe "GET /api/v1/locations" do
-    let!(:locations) { create_list(:location, 3) }
-
     # Since we don't have factory_bot set up, we'll create them manually in a before block
     before do
       3.times do |i|
@@ -142,7 +145,7 @@ RSpec.describe "Api::V1::Locations", type: :request do
           zip_code: "0000#{i}",
           latitude: i.to_f,
           longitude: i.to_f,
-          raw_response: {}
+          raw_response: '{}'
         )
       end
     end
@@ -183,7 +186,7 @@ RSpec.describe "Api::V1::Locations", type: :request do
       zip_code: '94043',
       latitude: 37.4056,
       longitude: -122.0775,
-      raw_response: {}
+      raw_response: '{}'
     ) }
 
     context 'with valid ID' do
