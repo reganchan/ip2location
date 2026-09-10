@@ -51,9 +51,9 @@ The test suite includes:
 To run the tests:
 1. Prepare the test database:
    ```bash
-   docker compose run --rm db mysql -u root -proot -e 'create database rails_api_test'
-   docker compose run --rm db mysql -u root -proot -e "grant all on rails_api_test.* to 'rails'@'%'"
-   docker compose run --rm web rails db:migrate RAILS_ENV=test
+   docker compose exec db mysql -u root -proot -e 'create database rails_api_test'
+   docker compose exec db mysql -u root -proot -e "grant all on rails_api_test.* to 'rails'@'%'"
+   docker compose exec web rails db:migrate RAILS_ENV=test
    ```
 
 2. Run the test suite:
