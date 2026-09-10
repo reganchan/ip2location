@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_01_01_000001) do
+ActiveRecord::Schema[7.0].define(version: 2026_09_10_000001) do
   create_table "locations", charset: "utf8mb4", collation: "utf8mb4_general_ci", force: :cascade do |t|
     t.string "ip_address"
     t.string "hostname"
@@ -25,6 +25,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_01_01_000001) do
     t.text "raw_response", size: :long, collation: "utf8mb4_bin"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "url"
     t.index ["country_code"], name: "index_locations_on_country_code"
     t.check_constraint "json_valid(`raw_response`)", name: "raw_response"
   end

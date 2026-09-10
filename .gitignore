@@ -1,3 +1,4 @@
 rails-api-service/.env
 rails-api-service/log/*
 rails-api-service/tmp/pids/server.pid
+rails-api-service/log/development.log

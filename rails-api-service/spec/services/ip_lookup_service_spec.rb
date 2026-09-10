@@ -4,6 +4,7 @@ require 'faraday'
 RSpec.describe IpLookupService, type: :service do
   let(:ip_address) { '8.8.8.8' }
   let(:hostname) { 'google.com' }
+  let(:url) { 'https://google.com:443/path' }
   let(:valid_response) do
     {
       'ip' => ip_address,
@@ -47,6 +48,7 @@ RSpec.describe IpLookupService, type: :service do
         }.to change(Location, :count).by(1)
 
         location = Location.last
+        expect(location.url).to eq(ip_address)
         expect(location.ip_address).to eq(ip_address)
         expect(location.hostname).to eq(hostname)
         expect(location.country_code).to eq('US')
@@ -54,8 +56,8 @@ RSpec.describe IpLookupService, type: :service do
       end
     end
 
-    context 'with valid hostname' do
-      it 'creates a location record' do
+    context 'with URL containing hostname' do
+      it 'extracts hostname from URL and creates a location record' do
         stub_request(:get, "http://api.ipstack.com/#{hostname}")
           .with(query: {
             'access_key' => ENV['IPSTACK_ACCESS_KEY'],
@@ -66,10 +68,11 @@ RSpec.describe IpLookupService, type: :service do
           .to_return(status: 200, body: valid_response.to_json, headers: {})
 
         expect {
-          IpLookupService.new(hostname).lookup
+          IpLookupService.new(url).lookup
         }.to change(Location, :count).by(1)
 
         location = Location.last
+        expect(location.url).to eq(url)
         expect(location.ip_address).to eq(ip_address)
         expect(location.hostname).to eq(hostname)
       end

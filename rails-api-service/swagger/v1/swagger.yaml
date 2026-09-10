@@ -46,7 +46,7 @@ paths:
       security:
         - api_key: []
     post:
-      summary: Create a new location by IP or hostname
+      summary: Create a new location by URL
       operationId: createLocation
       requestBody:
         required: true
@@ -60,13 +60,11 @@ paths:
                 location:
                   type: object
                   properties:
-                    ip_address:
+                    url:
                       type: string
-                      example: 8.8.8.8
-                    hostname:
-                      type: string
-                      example: google.com
-                  description: Either ip_address or hostname must be provided
+                      example: "https://google.com:443/path"
+                      description: "A URL or IP address. If it's a URL like protocol://hostname:port/path, the hostname will be extracted and resolved."
+                  description: "A url parameter must be provided"
       responses:
         '201':
           description: Location created successfully
@@ -191,6 +189,8 @@ components:
       properties:
         id:
           type: integer
+        url:
+          type: string
         ip_address:
           type: string
         hostname:

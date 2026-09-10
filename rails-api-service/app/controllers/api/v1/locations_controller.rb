@@ -5,15 +5,13 @@ module Api
       
       def create
         location_data = location_params
-        unless location_data[:ip_address] || location_data[:hostname]
-          render json: { error: "Either ip_address or hostname required" }, status: :bad_request
+        unless location_data[:url]
+          render json: { error: "url is required" }, status: :bad_request
           return
         end
 
         begin
-          location = IpLookupService.new(
-            location_data[:ip_address] || location_data[:hostname]
-          ).lookup
+          location = IpLookupService.new(location_data[:url]).lookup
           
           render json: {
             status: 'success',
@@ -49,7 +47,7 @@ module Api
       private
 
       def location_params
-        (params[:location] || {}).permit(:ip_address, :hostname)
+        (params[:location] || {}).permit(:url)
       end
 
       def verify_api_key

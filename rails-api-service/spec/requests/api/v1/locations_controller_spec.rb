@@ -31,28 +31,64 @@ RSpec.describe "Api::V1::Locations", type: :request do
           }.to_json, headers: {})
 
         expect {
-          post '/api/v1/locations', params: { location: { ip_address: '8.8.8.8' } }, headers: valid_headers, as: :json
+          post '/api/v1/locations', params: { location: { url: '8.8.8.8' } }, headers: valid_headers, as: :json
         }.to change(Location, :count).by(1)
 
         expect(response).to have_http_status(:created)
         json = JSON.parse(response.body)
         expect(json['status']).to eq('success')
         expect(json['location_id']).to be_present
+
+        location = Location.last
+        expect(location.url).to eq('8.8.8.8')
+        expect(location.ip_address).to eq('8.8.8.8')
+      end
+
+      it 'extracts hostname from URL and resolves it' do
+        # Mock the IPStack API call to hostname
+        stub_request(:get, "http://api.ipstack.com/google.com")
+          .with(query: {
+            'access_key' => ENV['IPSTACK_ACCESS_KEY'],
+            'hostname' => '1',
+            'language' => 'en',
+            'output' => 'json'
+          })
+          .to_return(status: 200, body: {
+            'ip' => '8.8.8.8',
+            'hostname' => 'google.com',
+            'type' => 'ipv4',
+            'country_code' => 'US',
+            'country_name' => 'United States',
+            'region_name' => 'California',
+            'city' => 'Mountain View',
+            'zip' => '94043',
+            'latitude' => 37.4056,
+            'longitude' => -122.0775,
+            'success' => true
+          }.to_json, headers: {})
+
+        expect {
+          post '/api/v1/locations', params: { location: { url: 'https://google.com:443/path' } }, headers: valid_headers, as: :json
+        }.to change(Location, :count).by(1)
+
+        location = Location.last
+        expect(location.url).to eq('https://google.com:443/path')
+        expect(location.ip_address).to eq('8.8.8.8')
       end
     end
 
-    context 'with missing ip_address and hostname' do
+    context 'with missing url' do
       it 'returns a bad request error' do
         post '/api/v1/locations', params: { location: {} }, headers: valid_headers, as: :json
         expect(response).to have_http_status(:bad_request)
         json = JSON.parse(response.body)
-        expect(json['error']).to eq('Either ip_address or hostname required')
+        expect(json['error']).to eq('url is required')
       end
     end
 
     context 'with invalid API key' do
       it 'returns unauthorized' do
-        post '/api/v1/locations', params: { location: { ip_address: '8.8.8.8' } }, headers: invalid_headers, as: :json
+        post '/api/v1/locations', params: { location: { url: '8.8.8.8' } }, headers: invalid_headers, as: :json
         expect(response).to have_http_status(:unauthorized)
         json = JSON.parse(response.body)
         expect(json['error']).to eq('Unauthorized')
@@ -65,7 +101,7 @@ RSpec.describe "Api::V1::Locations", type: :request do
           IpLookupService::IpstackError.new('API error')
         )
 
-        post '/api/v1/locations', params: { location: { ip_address: '8.8.8.8' } }, headers: valid_headers, as: :json
+        post '/api/v1/locations', params: { location: { url: '8.8.8.8' } }, headers: valid_headers, as: :json
         expect(response).to have_http_status(:internal_server_error)
         json = JSON.parse(response.body)
         expect(json['error']).to eq('API error')
@@ -78,7 +114,7 @@ RSpec.describe "Api::V1::Locations", type: :request do
           StandardError.new('Unexpected error')
         )
 
-        post '/api/v1/locations', params: { location: { ip_address: '8.8.8.8' } }, headers: valid_headers, as: :json
+        post '/api/v1/locations', params: { location: { url: '8.8.8.8' } }, headers: valid_headers, as: :json
         expect(response).to have_http_status(:bad_request)
         json = JSON.parse(response.body)
         expect(json['error']).to eq('Invalid input: Unexpected error')
@@ -88,6 +124,7 @@ RSpec.describe "Api::V1::Locations", type: :request do
 
   describe "DELETE /api/v1/locations/:id" do
     let!(:location) { Location.create!(
+      url: 'https://google.com:443/path',
       ip_address: '8.8.8.8',
       hostname: 'google.com',
       address_type: 'ipv4',
@@ -135,6 +172,7 @@ RSpec.describe "Api::V1::Locations", type: :request do
     before do
       3.times do |i|
         Location.create!(
+          url: "https://host#{i}.com:443/path",
           ip_address: "8.8.8.#{i}",
           hostname: "host#{i}.com",
           address_type: 'ipv4',
@@ -176,6 +214,7 @@ RSpec.describe "Api::V1::Locations", type: :request do
 
   describe "GET /api/v1/locations/:id" do
     let!(:location) { Location.create!(
+      url: 'https://google.com:443/path',
       ip_address: '8.8.8.8',
       hostname: 'google.com',
       address_type: 'ipv4',
@@ -194,6 +233,7 @@ RSpec.describe "Api::V1::Locations", type: :request do
         get "/api/v1/locations/#{location.id}", headers: valid_headers
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)
+        expect(json['url']).to eq('https://google.com:443/path')
         expect(json['ip_address']).to eq('8.8.8.8')
         expect(json['country_name']).to eq('United States')
       end

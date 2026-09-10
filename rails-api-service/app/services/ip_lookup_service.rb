@@ -1,8 +1,9 @@
 class IpLookupService
   class IpstackError < StandardError; end
 
-  def initialize(ip_or_hostname)
-    @ip_or_hostname = ip_or_hostname
+  def initialize(url)
+    @url = url
+    @ip_or_hostname = extract_hostname(url)
   end
 
   def lookup
@@ -20,6 +21,7 @@ class IpLookupService
     end
 
     Location.create!(
+      url: @url,
       ip_address: data['ip'],
       hostname: data['hostname'],
       address_type: data['type'],
@@ -34,5 +36,18 @@ class IpLookupService
     )
   rescue => e
     raise e
+  end
+
+  private
+
+  def extract_hostname(url)
+    # If it's just an IP, return as is
+    return url if url.match?(/\A\d{1,3}(\.\d{1,3}){3}\z/)
+
+    # Extract hostname from URL like protocol://hostname:port/path
+    uri = URI.parse(url)
+    uri.host || url
+  rescue URI::InvalidParserError
+    url
   end
 end
